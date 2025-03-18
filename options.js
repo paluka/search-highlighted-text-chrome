@@ -119,8 +119,30 @@ document.addEventListener("DOMContentLoaded", () => {
         deleteSearchEngine(index);
       });
 
+      // Move up button
+      const moveUpButton = document.createElement("button");
+      moveUpButton.textContent = "\u25B2";
+      moveUpButton.className = "move-button";
+      moveUpButton.title = "Move up";
+      moveUpButton.disabled = index === 0;
+      moveUpButton.addEventListener("click", () => {
+        moveSearchEngine(index, index - 1);
+      });
+
+      // Move down button
+      const moveDownButton = document.createElement("button");
+      moveDownButton.textContent = "\u25BC";
+      moveDownButton.className = "move-button";
+      moveDownButton.title = "Move down";
+      moveDownButton.disabled = index === searchEngines.length - 1;
+      moveDownButton.addEventListener("click", () => {
+        moveSearchEngine(index, index + 1);
+      });
+
       actionsCell.appendChild(editButton);
       actionsCell.appendChild(deleteButton);
+      actionsCell.appendChild(moveUpButton);
+      actionsCell.appendChild(moveDownButton);
 
       // Add cells to row
       row.appendChild(enabledCell);
@@ -131,6 +153,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Add row to table
       enginesList.appendChild(row);
+    });
+  }
+
+  // Move a search engine up or down in the list
+  function moveSearchEngine(fromIndex, toIndex) {
+    chrome.storage.sync.get("searchEngines", (data) => {
+      const searchEngines = data.searchEngines || DEFAULT_SEARCH_ENGINES;
+
+      // Make sure indices are valid
+      if (toIndex < 0 || toIndex >= searchEngines.length) {
+        return;
+      }
+
+      // Reorder the array
+      const [movedEngine] = searchEngines.splice(fromIndex, 1);
+      searchEngines.splice(toIndex, 0, movedEngine);
+
+      chrome.storage.sync.set({ searchEngines }, () => {
+        loadSearchEngines();
+        showSuccessMessage();
+      });
     });
   }
 

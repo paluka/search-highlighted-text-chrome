@@ -41,6 +41,11 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+// Handle clicks on the extension icon in the toolbar
+chrome.action.onClicked.addListener(() => {
+  chrome.runtime.openOptionsPage();
+});
+
 // Update context menu when settings change
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "sync" && changes.searchEngines) {
@@ -63,6 +68,7 @@ function createContextMenus(searchEngines) {
   });
 
   // Create menu items for each enabled search engine
+  // The order in the context menu will match the order in the searchEngines array
   searchEngines.forEach((engine) => {
     if (engine.enabled) {
       // Create it as a child of the "Search in..." menu
@@ -130,34 +136,41 @@ function showInputPopup(selectedText, engineName, isMainItem) {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background: #f8f9fa;
+    border: none;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     z-index: 10000;
-    width: 400px;
+    width: 420px;
     max-width: 90vw;
-    font-family: Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: #37474f;
+    transition: all 0.2s ease;
   `;
 
   // Create header
   const header = document.createElement("h3");
   header.textContent = `Search in ${engineName}`;
   header.style.cssText = `
-    margin: 0 0 15px 0;
-    font-size: 18px;
-    color: #333;
+    margin: 0 0 18px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #37474f;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 12px;
   `;
 
   // Create selected text display
   const selectedTextDisplay = document.createElement("div");
   selectedTextDisplay.style.cssText = `
-    margin-bottom: 15px;
-    padding: 8px;
-    background: #f5f5f5;
+    margin-bottom: 18px;
+    padding: 12px;
+    background: rgba(33, 150, 243, 0.08);
+    border-left: 4px solid #2196f3;
     border-radius: 4px;
     font-size: 14px;
+    line-height: 1.5;
     word-break: break-word;
   `;
   selectedTextDisplay.textContent = `Selected text: "${selectedText}"`;
@@ -167,62 +180,103 @@ function showInputPopup(selectedText, engineName, isMainItem) {
   inputLabel.textContent = "Additional input:";
   inputLabel.style.cssText = `
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 500;
+    color: #455a64;
   `;
 
   const inputField = document.createElement("input");
   inputField.type = "text";
   inputField.style.cssText = `
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
     font-size: 14px;
     box-sizing: border-box;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    background-color: #ffffff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    outline: none;
+    color: #37474F;
   `;
   inputField.placeholder = "Enter additional text...";
+
+  // Add focus effect
+  inputField.addEventListener("focus", () => {
+    inputField.style.borderColor = "#2196f3";
+    inputField.style.boxShadow = "0 0 0 3px rgba(33, 150, 243, 0.2)";
+  });
+
+  inputField.addEventListener("blur", () => {
+    inputField.style.borderColor = "#e0e0e0";
+    inputField.style.boxShadow = "none";
+  });
 
   // Create buttons container
   const buttonsContainer = document.createElement("div");
   buttonsContainer.style.cssText = `
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 12px;
+    margin-top: 4px;
   `;
 
   // Create cancel button
   const cancelButton = document.createElement("button");
   cancelButton.textContent = "Cancel";
   cancelButton.style.cssText = `
-    padding: 8px 12px;
-    background: #f5f5f5;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 10px 16px;
+    background: transparent;
+    color: #546e7a;
+    border: 1px solid #cfd8dc;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
   `;
-  cancelButton.onclick = () => popup.remove();
+  cancelButton.onmouseover = () => {
+    cancelButton.style.backgroundColor = "#eceff1";
+  };
+  cancelButton.onmouseout = () => {
+    cancelButton.style.backgroundColor = "transparent";
+  };
+  cancelButton.onclick = () => {
+    popup.remove();
+    overlay.remove();
+  };
 
   // Create search button
   const searchButton = document.createElement("button");
   searchButton.textContent = "Search";
   searchButton.style.cssText = `
-    padding: 8px 12px;
-    background: #4285f4;
+    padding: 10px 20px;
+    background: #2196f3;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(33, 150, 243, 0.3);
   `;
+  searchButton.onmouseover = () => {
+    searchButton.style.backgroundColor = "#1976d2";
+    searchButton.style.boxShadow = "0 4px 8px rgba(33, 150, 243, 0.4)";
+  };
+  searchButton.onmouseout = () => {
+    searchButton.style.backgroundColor = "#2196f3";
+    searchButton.style.boxShadow = "0 2px 5px rgba(33, 150, 243, 0.3)";
+  };
 
   // Add event listener for the search button
   searchButton.onclick = () => {
     const additionalInput = inputField.value.trim();
     popup.remove();
+    overlay.remove();
 
     // Send a message to the background script to open the search
     chrome.runtime.sendMessage({
@@ -265,8 +319,10 @@ function showInputPopup(selectedText, engineName, isMainItem) {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
     z-index: 9999;
+    transition: opacity 0.2s ease;
   `;
   overlay.onclick = () => {
     popup.remove();
@@ -274,6 +330,14 @@ function showInputPopup(selectedText, engineName, isMainItem) {
   };
 
   document.body.appendChild(overlay);
+
+  // Add slight animation effect
+  setTimeout(() => {
+    popup.style.transform = "translate(-50%, -52%)";
+  }, 10);
+  setTimeout(() => {
+    popup.style.transform = "translate(-50%, -50%)";
+  }, 200);
 }
 
 // Listen for messages from the content script
@@ -302,7 +366,7 @@ function performSearch(selectedText, additionalInput, urlTemplate) {
 
   // If there's additional input, combine it with the selected text
   if (additionalInput) {
-    searchText = `${selectedText} ${additionalInput}`;
+    searchText = `${additionalInput}: "${selectedText}"`;
   }
 
   // Create the search URL
