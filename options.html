@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Search Highlighted Text Options</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        max-width: 800px;
+      }
+
+      h1 {
+        color: #333;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      .help-text {
+        font-size: 0.8em;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      button {
+        background-color: #4285f4;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      button:hover {
+        background-color: #3367d6;
+      }
+
+      .success-message {
+        color: green;
+        margin-top: 10px;
+        display: none;
+      }
+
+      .search-engines-list {
+        margin: 20px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+
+      th,
+      td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .edit-button,
+      .delete-button {
+        padding: 5px 10px;
+        font-size: 12px;
+      }
+
+      .edit-button {
+        background-color: #ffc107;
+        color: #000;
+      }
+
+      .delete-button {
+        background-color: #dc3545;
+      }
+
+      .add-engine-section {
+        margin-top: 30px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+      }
+
+      .checkbox-group {
+        margin-top: 15px;
+      }
+
+      .checkbox-item {
+        margin-bottom: 8px;
+      }
+
+      input[type="checkbox"] {
+        margin-right: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Search Highlighted Text Options</h1>
+
+    <div class="search-engines-list">
+      <h2>Your Search Engines</h2>
+      <p>
+        These search engines will appear in your right-click menu. Toggle to
+        enable or disable.
+      </p>
+
+      <table id="engines-table">
+        <thead>
+          <tr>
+            <th>Enabled</th>
+            <th>Name</th>
+            <th>URL</th>
+            <th>Ask Input</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="engines-list">
+          <!-- Search engines will be populated here -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="add-engine-section">
+      <h2>Add/Edit Search Engine</h2>
+
+      <div class="form-group">
+        <label for="search-engine-name">Search Engine Name:</label>
+        <input
+          type="text"
+          id="search-engine-name"
+          placeholder="e.g., Perplexity AI"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="search-engine-url">Search Engine URL:</label>
+        <input
+          type="text"
+          id="search-engine-url"
+          placeholder="e.g., https://www.perplexity.ai/search?q=%s"
+        />
+        <div class="help-text">
+          Use %s to represent where the search term should be inserted in the
+          URL.
+        </div>
+      </div>
+
+      <div class="checkbox-group">
+        <div class="checkbox-item">
+          <label>
+            <input type="checkbox" id="search-engine-enabled" checked />
+            Enable this search engine
+          </label>
+        </div>
+
+        <div class="checkbox-item">
+          <label>
+            <input type="checkbox" id="search-engine-prompt-input" />
+            Prompt for additional input before searching
+          </label>
+          <div class="help-text">
+            When enabled, a popup will ask the user for additional text to add
+            to the search.
+          </div>
+        </div>
+      </div>
+
+      <button id="add-button">Add Search Engine</button>
+      <button id="update-button" style="display: none">
+        Update Search Engine
+      </button>
+      <button id="cancel-button" style="display: none">Cancel</button>
+    </div>
+
+    <div class="preset-buttons" style="margin-top: 30px">
+      <h3>Add Preset Search Engines</h3>
+      <button
+        class="preset-button"
+        data-name="Perplexity AI"
+        data-url="https://www.perplexity.ai/search?q=%s"
+      >
+        Perplexity AI
+      </button>
+      <button
+        class="preset-button"
+        data-name="Google"
+        data-url="https://www.google.com/search?q=%s"
+      >
+        Google
+      </button>
+      <button
+        class="preset-button"
+        data-name="Bing"
+        data-url="https://www.bing.com/search?q=%s"
+      >
+        Bing
+      </button>
+      <button
+        class="preset-button"
+        data-name="DuckDuckGo"
+        data-url="https://duckduckgo.com/?q=%s"
+      >
+        DuckDuckGo
+      </button>
+      <button
+        class="preset-button"
+        data-name="ChatGPT"
+        data-url="https://chatgpt.com/?q=%s"
+        data-prompt="true"
+      >
+        ChatGPT
+      </button>
+    </div>
+
+    <div id="success-message" class="success-message">
+      Settings saved successfully!
+    </div>
+
+    <script src="options.js"></script>
+  </body>
+</html>
